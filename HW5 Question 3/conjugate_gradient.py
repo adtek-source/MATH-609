@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Conjugate Gradient (CG) method
-def conjugate_gradient(A, b, max_iter=1000, tol=1e-6):
+def conjugate_gradient(A, b, max_iter=10000, tol=1e-12):
     n = len(b)
     x = np.zeros(n)  # Initial guess: x(0) = 0
     r = b - A.dot(x)
@@ -17,6 +17,7 @@ def conjugate_gradient(A, b, max_iter=1000, tol=1e-6):
         r = r - t * Av
         d = np.dot(r, r)
         if d < tol:
+            print("Yes")
             break
         v = r + (d / c) * v
         c = d
@@ -60,10 +61,10 @@ for n in range(1, 15):
     norm_h3_cg = norm_cg / (2**(-3 * n))
 
     print(f'h = {2**(-n)}')
-    print(f'Norm: {norm_cg}')
-    print(f'Norm divided by h: {norm_h_cg}')
-    print(f'Norm divided by h^2: {norm_h2_cg}')
-    print(f'Norm divided by h^3: {norm_h3_cg}')
+    print(f'Norm: {norm_cg:.6e}')
+    print(f'Norm divided by h: {norm_h_cg:.6e}')
+    print(f'Norm divided by h^2: {norm_h2_cg:.6e}')
+    print(f'Norm divided by h^3: {norm_h3_cg:.6e}')
     print()
 
     plt.plot(h_steps, cg_sol, label=f'CG n={n}')
@@ -74,5 +75,3 @@ plt.title("Solution of $-\phi'' + (4x^2 + 2)\phi = 0$")
 plt.legend()
 plt.grid(True)
 plt.show()
-
-
