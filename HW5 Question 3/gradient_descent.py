@@ -3,16 +3,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Gradient Descent (GD) method
-def gradient_descent(A, b, max_iter=1000, tol=1e-16):
-    n = len(b)
-    x = np.zeros(n)  # Initial guess: x(0) = 0
+def gradient_descent(A, b, max_iter=20000, tol=1e-3):
+    M_inv = 1.0 / np.diag(A)   # simple diagonal preconditioner
+    x = np.zeros_like(b, dtype=float)
+    r = b - A @ x
+    z = M_inv * r              # M^{-1} r
+
     for _ in range(max_iter):
-        v = b - A.dot(x)
-        t = v.dot(v) / v.dot(A.T.dot(v)) # Gradient of the cost function
-        x += t*v # Update x
-        if np.dot(b - A.dot(x), b - A.dot(x)) < tol:
-            break
-        
+        Az = A @ z
+        alpha = (r @ z) / (z @ Az)
+        x += alpha * z
+        r_new = r - alpha * Az
+        if np.linalg.norm(r_new) < tol:
+            print("Yes")
+            return x
+
+        z = M_inv * r_new
+        r = r_new
+
     return x
 
 plt.figure(figsize=(10, 8))
@@ -21,8 +29,8 @@ for n in range(1, 15):
     N = 2**n - 1
     h = 2**(-n)
 
-    b = np.array([0 for i in range(N)])
-    b[0] = 1
+    b = np.zeros(N, dtype=float)
+    b[0] = 1.0
     b[N - 1] = math.e
 
     A = np.zeros((N,N))
@@ -54,10 +62,10 @@ for n in range(1, 15):
     norm_h3_gd = norm_gd / (2**(-3 * n))  # Error divided by h^3
 
 
-    print(f'Norm: {norm_gd}')
-    print(f'Norm divided by h: {norm_h_gd}')
-    print(f'Norm divided by h^2: {norm_h2_gd}')
-    print(f'Norm divided by h^3: {norm_h3_gd}')
+    print(f'Norm: {norm_gd:.6e}')
+    print(f'Norm divided by h: {norm_h_gd:.6e}')
+    print(f'Norm divided by h^2: {norm_h2_gd:.6e}')
+    print(f'Norm divided by h^3: {norm_h3_gd:.6e}')
     print()
 
     plt.plot(h_steps, gd_sol, label=f'GD n={n}')
@@ -68,5 +76,3 @@ plt.title("Solution of $-\phi'' + (4x^2 + 2)\phi = 0$")
 plt.legend()
 plt.grid(True)
 plt.show()
-
-
